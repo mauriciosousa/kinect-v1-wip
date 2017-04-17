@@ -1,0 +1,329 @@
+﻿<Window x:Class="KinectClient.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Walking In Place Server" 
+        Height="600" Width="1000"
+        Icon="Images\Kinect.ico" Closed="Window_Closed" Closing="Window_Closing" KeyDown="Window_KeyDown">
+
+    <!--Resources-->
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources\KinectControlResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+        
+    <Grid Name="grid">
+        <!--Row Definitions-->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!--Column Definitions-->
+        <Grid.ColumnDefinitions>
+            <!-- The main viewer -->
+            <ColumnDefinition Width="402*" MinWidth="400"/>
+            <!-- The side panels -->
+            <ColumnDefinition Width="346"/>
+        </Grid.ColumnDefinitions>
+
+        <!--Title Bar-->
+        <DockPanel Grid.ColumnSpan="2" Height="44">
+            <TextBlock DockPanel.Dock="Right" Margin="0 0 5 0" 
+                       VerticalAlignment="Center" HorizontalAlignment="Right" 
+                       Foreground="Gray" FontFamily="Segoe UI" FontSize="28">
+                Walking In Place Server
+            </TextBlock>
+            <TextBlock Height="37" Name="stateTextBox" Text="  Wip State:   Not Active (do activation gesture)" FontWeight="Bold" FontSize="20" Width="581" TextAlignment="Left" Foreground="#FFBA3535" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </DockPanel>
+        
+        <!--Main Viewer-->
+        <Viewbox Grid.Row="1" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="0,0,260,0">
+            <Image Name="depthImage" Width="640" Height="480"/>
+        </Viewbox>
+        <Viewbox Grid.Row="1" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="0,0,260,0">
+            <Image Name="skeletonImage" Width="630" Height="480"/>
+        </Viewbox>
+        
+        <!--Kinect Status Bar-->
+        <StatusBar Grid.Row="2" HorizontalAlignment="Stretch" Name="kinectStatusBar" 
+                   VerticalAlignment="Bottom" Background="White" Foreground="Gray" Grid.ColumnSpan="2" Margin="0,0,260,0">
+            <StatusBarItem Padding="0 0 0 5"></StatusBarItem>
+        </StatusBar>
+
+        <!--Connection Status Bar-->            
+        <StatusBar Grid.Row="3" HorizontalAlignment="Stretch" Name="connectionStatusBar" 
+                   VerticalAlignment="Bottom" Background="White" Foreground="Gray" Grid.ColumnSpan="2" Margin="0,0,260,0">
+            <StatusBarItem Padding="0 0 0 5"></StatusBarItem>
+        </StatusBar>
+
+        <StackPanel 
+            Orientation="Vertical" 
+            Grid.Column="1" 
+            Grid.Row="1" Margin="0,10,0,0"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Left" Height="465" Width="336">
+
+            <RadioButton Tag="Kinect Settings"  Style="{StaticResource KinectSettingsPanel}" Margin="0 0 0 10" IsChecked="True">
+                <StackPanel Orientation="Vertical">
+                    <Grid Width="220">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" 
+                               Style="{StaticResource KinectLabel}" HorizontalAlignment="Right">27°</Label>
+                        <Image Grid.Row="1" Grid.Column="0" 
+                               Width="50" Source="Images\KinectTilt.png" Margin="5"/>
+                        <Label Grid.Row="2" Grid.Column="0" 
+                               Style="{StaticResource KinectLabel}" HorizontalAlignment="Right">-27°</Label>
+                        <Image Name="SliderTrack" Grid.Row="0" 
+                               Grid.RowSpan="3" Grid.Column="1" Source="Images\SliderTrack.png" Margin="5 5 20 5"/>
+                        <Image Name="SliderArrow" Grid.Row="0" 
+                               Grid.RowSpan="3"  Grid.Column="1" Source="Images\Slider.png" Width="40" 
+                               VerticalAlignment="Center" HorizontalAlignment="Right" 
+                               RenderTransformOrigin="-1.3,0.5" MouseDown="Slider_MouseDown" 
+                               MouseUp="Slider_MouseUp" MouseMove="Slider_MouseMove">
+                        </Image>
+                        <TextBlock Name="tiltAngleTextBox" Style="{StaticResource KinectTextBlock}" Grid.Row="0" Grid.RowSpan="3" 
+                               Grid.Column="2" VerticalAlignment="Center" FontSize="{StaticResource LabelFontSize}" Text="0" />
+                        
+                        <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Kinect Status" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        <StackPanel Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <RadioButton Name="kinectOnRadioButton" Content="On"/>
+                            <RadioButton Name="kinectOffRadioButton" Content="Off"/>
+                        </StackPanel>                 
+
+                    </Grid>
+                </StackPanel>
+            </RadioButton>
+
+            <RadioButton Tag="Virtual Environment"  Style="{StaticResource KinectSettingsPanel}" Margin="0 0 0 10">
+                <StackPanel Orientation="Vertical">
+                    <Grid Width="220">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Address:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <TextBox Height="21" Name="addressTextBox" Width="100" LostFocus="addressTextBox_LostFocus" />
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Port:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <TextBox Height="21" Name="portTextBox" Width="50" LostFocus="portTextBox_LostFocus" />
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Frame rate:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        <StackPanel Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <TextBox Height="21" Name="framerateTextBox" Width="50" LostFocus="framerateTextBox_LostFocus" />
+                        </StackPanel>
+                        <TextBlock Grid.Row="3" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Left"
+                                 Text="frames/s" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        
+                        <Button Grid.Row="4" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Left" Content="Reset Position" Click="Button_Click" />
+
+                        
+
+                    </Grid>
+                </StackPanel>
+            </RadioButton>
+
+            <RadioButton Tag="Foot"  Style="{StaticResource KinectSettingsPanel}" Margin="0 0 0 10">
+                <StackPanel Orientation="Vertical">
+                    <Grid Width="220">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Position Threshold:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <TextBox Height="21" Name="positionThresholdTextBox" Width="50" LostFocus="positionThresholdTextBox_LostFocus" />
+                        </StackPanel>
+                        <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Left"
+                                 Text="(meters)" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Step Init Speed:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <TextBox Height="21" Name="stepInitSpeedThresholdTextBox" Width="50" LostFocus="stepInitSpeedThresholdTextBox_LostFocus" />
+                        </StackPanel>
+                        <TextBlock Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Left"
+                                 Text="(m/s)" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+
+
+                    </Grid>
+                </StackPanel>
+            </RadioButton>
+
+            <RadioButton Tag="Velocity"  Style="{StaticResource KinectSettingsPanel}" Margin="0 0 0 10">
+                <StackPanel Orientation="Vertical">
+                    <Grid Width="220">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Initial:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <TextBox Height="21" Name="initialVelocityTextBox" Width="50" LostFocus="initialVelocityTextBox_LostFocus" />
+                        </StackPanel>
+                        <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Left"
+                                 Text="(m/s)" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Max:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <TextBox Height="21" Name="maxVelocityTextBox" Width="50" LostFocus="maxVelocityTextBox_LostFocus" />
+                        </StackPanel>
+                        <TextBlock Grid.Row="1" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Left"
+                                 Text="(m/s)" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+
+                        
+                        
+                    </Grid>
+                </StackPanel>
+            </RadioButton>
+
+
+            <RadioButton Tag="Orientation"  Style="{StaticResource KinectSettingsPanel}" Margin="0 0 0 10">
+                <StackPanel Orientation="Vertical">
+                    <Grid Width="280">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="min threshold:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <TextBox Height="21" Name="minRotationThresholdTextBox" Width="50" LostFocus="minRotationThresholdTextBox_LostFocus" />
+                        </StackPanel>
+                        
+
+
+                        <TextBlock Grid.Row="5" Name="radiobuttonsText" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Technique:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        
+                        <StackPanel Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <RadioButton Name="orientationLinearRadioButton" Content="Linear" Checked="orientationLinearRadioButton_Checked" />
+                            <RadioButton Name="orientationExponentialRadioButton" Content="Exponential" Checked="orientationExponentialRadioButton_Checked" />
+                            <RadioButton Name="orientationTimeRadioButton" Content="Time" Checked="orientationTimeRadioButton_Checked" />
+                        </StackPanel>
+
+
+                        
+
+
+                    </Grid>
+                </StackPanel>
+            </RadioButton>
+
+
+            <RadioButton Tag="Wip Dashboard"  Style="{StaticResource KinectSettingsPanel}" Margin="0 0 0 10">
+                <StackPanel Orientation="Vertical">
+                    <Grid Width="280">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Velocity:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+                        
+                        <TextBlock Name="dashboardVelocityLabel" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Left"
+                                 Text="0 m/s" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}" FontSize="35" FontWeight="Bold" />
+
+
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Orientation:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+
+                        <TextBlock Name="dashboardOrientationLabel" Grid.Row="3" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Left"
+                                 Text="0" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}" FontSize="35" FontWeight="Bold" />
+
+                        
+                        
+                        <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="Foot Height:" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}"/>
+
+                        <TextBlock Name="dashboardLeftFootHeight" Grid.Row="5" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Left"
+                                 Text="0" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}" FontSize="30" FontWeight="Bold" />
+                        <TextBlock Name="dashboardRightFootHeight" Grid.Row="5" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                 Text="0" Margin="0,0,10,0" Style="{StaticResource KinectTextBlock}" FontSize="30" FontWeight="Bold" />
+
+
+                    </Grid>
+                </StackPanel>
+            </RadioButton>
+
+        </StackPanel>
+    </Grid>
+</Window>
